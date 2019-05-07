@@ -2,16 +2,17 @@ package com.daria.CrossZero;
 
 import java.util.Scanner;
 
-import static com.daria.CrossZero.Field.playingField;
+import static com.daria.CrossZero.Field.VALUE_GAMER1;
+import static com.daria.CrossZero.Field.VALUE_GAMER2;
 
 public class GameLogic {
-    private int movesPlayer = 1;
-    private boolean gameOver = false;
+    public static int movesPlayer = 1;
+    private static final int MAX_MOVES = 3;
 
     public void startGame() {
         System.out.println("Welcome!");
         try {
-            while (gameOver == false) {
+            while (true) {
                 Field.printField();
                 if (movesPlayer % 2 != 0) {
                     System.out.println("Player 1 (X). Move number - " + movesPlayer + ". Player, select row and turn column");
@@ -20,145 +21,95 @@ public class GameLogic {
                 }
                 System.out.println("Enter value row:");
                 Scanner scanner = new Scanner(System.in);
-                int row = scanner.nextInt();
+                int row = readInt(scanner);
                 System.out.println("Enter value column:");
-                int column = scanner.nextInt();
+                int column = readInt(scanner);
                 checkField(row, column);
-                gameOver = checkGame(gameOver);
+                if (checkWin(VALUE_GAMER1)) {
+                    System.out.println("Player 1(X) won");
+                    break;
+                } else if (checkWin(VALUE_GAMER2)) {
+                    System.out.println("Player 2(O) won");
+                    break;
+                } else if (isFreePlace()) {
+                    System.out.println("Draw!");
+                    break;
+                }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Out of range");
         }
-
-        if (gameOver == true) {
-            Field.printField();
-            if (movesPlayer < 9) {
-                if (movesPlayer % 2 == 0) {
-                    System.out.println("Player 1(X) won");
-                } else {
-                    System.out.println("Player 2(O) won");
-                }
-            } else {
-                System.out.println("Draw!");
-            }
-            System.out.println("Game over!");
-        }
     }
 
-    private boolean checkGame(boolean gameOver) {
-        if (movesPlayer > 9) {
-            gameOver = true;
-        } else if (movesPlayer > 5) {
-            if ((playingField[0][0] == playingField[0][1]) && (playingField[0][1] == playingField[0][2]) && (playingField[0][0] != '*')) {
-                gameOver = true;
-            } else if ((playingField[1][0] == playingField[1][1]) && (playingField[1][1] == playingField[1][2]) && (playingField[1][1] != '*')) {
-                gameOver = true;
-            } else if ((playingField[2][0] == playingField[2][1]) && (playingField[2][1] == playingField[2][2]) && (playingField[2][2] != '*')) {
-                gameOver = true;
-            } else if ((playingField[0][0] == playingField[1][0]) && (playingField[1][0] == playingField[2][0]) && (playingField[0][0] != '*')) {
-                gameOver = true;
-            } else if ((playingField[0][1] == playingField[1][1]) && (playingField[1][1] == playingField[2][1]) && (playingField[1][1] != '*')) {
-                gameOver = true;
-            } else if ((playingField[0][2] == playingField[1][2]) && (playingField[1][2] == playingField[2][2]) && (playingField[2][2] != '*')) {
-                gameOver = true;
-            } else if ((playingField[0][0] == playingField[1][1]) && (playingField[1][1] == playingField[2][2]) && (playingField[2][2] != '*')) {
-                gameOver = true;
-            } else if ((playingField[0][2] == playingField[1][1]) && (playingField[1][1] == playingField[2][0]) && (playingField[2][0] != '*')) {
-                gameOver = true;
+    private static int readInt(Scanner scanner) {
+        boolean validInput = false;
+        int number = -1;
+        while (!validInput) {
+            if (scanner.hasNextInt()) {
+                number = scanner.nextInt();
+                if (number >= 0 && number <= 2) {
+                    break;
+                } else {
+                    System.out.println("Enter value 0-2");
+                }
+            } else {
+                System.out.println("Wrong value. Please repeat!");
+                scanner.next();
+                validInput = false;
             }
         }
-        return gameOver;
+        return number;
+    }
+
+    private static boolean isFreePlace() {
+        Field field = new Field();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (field.getPlayingField()[i][j] == '*') {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkLine(int start_x, int start_y, int dx, int dy, char sign) {
+        Field field = new Field();
+        for (int i = 0; i < MAX_MOVES; i++) {
+            if (field.getPlayingField()[start_x + i * dx][start_y + i * dy] != sign) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkWin(char sign) {
+        for (int i = 0; i < MAX_MOVES; i++) {
+            // проверяем строки
+            if (checkLine(i, 0, 0, 1, sign)) {
+                return true;
+            }
+            // проверяем столбцы
+            if (checkLine(0, i, 1, 0, sign)) {
+                return true;
+            }
+        }
+        // проверяем диагонали
+        if (checkLine(0, 0, 1, 1, sign)) {
+            return true;
+        }
+        if (checkLine(0, MAX_MOVES - 1, 1, -1, sign)) {
+            return true;
+        }
+        return false;
     }
 
     private void checkField(int row, int column) {
-        int val = row * 10 + column;
-        if (playingField[row][column] == '*') {
-            countOfField(val);
-        } else System.out.println("Enter another value");
-    }
-
-    private void countOfField(int valueField) {
-        if (movesPlayer % 2 != 0) {
-            movesPlayer++;
-            switch (valueField) {
-                case 0: {
-                    playingField[0][0] = 'X';
-                    break;
-                }
-                case 1: {
-                    playingField[0][1] = 'X';
-                    break;
-                }
-                case 2: {
-                    playingField[0][2] = 'X';
-                    break;
-                }
-                case 10: {
-                    playingField[1][0] = 'X';
-                    break;
-                }
-                case 11: {
-                    playingField[1][1] = 'X';
-                    break;
-                }
-                case 12: {
-                    playingField[1][2] = 'X';
-                    break;
-                }
-                case 20: {
-                    playingField[2][0] = 'X';
-                    break;
-                }
-                case 21: {
-                    playingField[2][1] = 'X';
-                    break;
-                }
-                case 22: {
-                    playingField[2][2] = 'X';
-                    break;
-                }
-            }
-        } else if (movesPlayer % 2 == 0) {
-            movesPlayer++;
-            switch (valueField) {
-                case 0: {
-                    playingField[0][0] = 'O';
-                    break;
-                }
-                case 1: {
-                    playingField[0][1] = 'O';
-                    break;
-                }
-                case 2: {
-                    playingField[0][2] = 'O';
-                    break;
-                }
-                case 10: {
-                    playingField[1][0] = 'O';
-                    break;
-                }
-                case 11: {
-                    playingField[1][1] = 'O';
-                    break;
-                }
-                case 12: {
-                    playingField[1][2] = 'O';
-                    break;
-                }
-                case 20: {
-                    playingField[2][0] = 'O';
-                    break;
-                }
-                case 21: {
-                    playingField[2][1] = 'O';
-                    break;
-                }
-                case 22: {
-                    playingField[2][2] = 'O';
-                    break;
-                }
-            }
+        Field field = new Field();
+        if (field.getPlayingField()[row][column] == '*') {
+            field.moveGamer(row, column);
+        } else {
+            System.out.println("Enter another value");
         }
     }
 }
-

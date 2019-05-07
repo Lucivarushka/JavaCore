@@ -1,10 +1,16 @@
 package com.daria.CrossZero;
 
 public class Field {
-    public static final char[][] playingField = new char[][]{
+    public static final char VALUE_GAMER1 = 'X';
+    public static final char VALUE_GAMER2 = 'O';
+    private static char[][] playingField = new char[][]{
             {'*', '*', '*'},
             {'*', '*', '*'},
             {'*', '*', '*'}};
+
+    public char[][] getPlayingField() {
+        return playingField;
+    }
 
     public static void printField() {
         int one = 0;
@@ -16,6 +22,16 @@ public class Field {
                 System.out.print(playingField[i][j] + " ");
             }
             System.out.println();
+        }
+    }
+
+    public static void moveGamer(int row, int column) {
+        if (GameLogic.movesPlayer % 2 != 0) {
+            GameLogic.movesPlayer++;
+            playingField[row][column] = VALUE_GAMER1;
+        } else if (GameLogic.movesPlayer % 2 == 0) {
+            GameLogic.movesPlayer++;
+            playingField[row][column] = VALUE_GAMER2;
         }
     }
 }
