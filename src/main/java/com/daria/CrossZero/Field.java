@@ -24,14 +24,4 @@ public class Field {
             System.out.println();
         }
     }
-
-    public static void moveGamer(int row, int column) {
-        if (GameLogic.movesPlayer % 2 != 0) {
-            GameLogic.movesPlayer++;
-            playingField[row][column] = VALUE_GAMER1;
-        } else if (GameLogic.movesPlayer % 2 == 0) {
-            GameLogic.movesPlayer++;
-            playingField[row][column] = VALUE_GAMER2;
-        }
-    }
 }

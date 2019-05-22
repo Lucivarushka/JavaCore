@@ -26,9 +26,11 @@ public class GameLogic {
                 int column = readInt(scanner);
                 checkField(row, column);
                 if (checkWin(VALUE_GAMER1)) {
+                    Field.printField();
                     System.out.println("Player 1(X) won");
                     break;
                 } else if (checkWin(VALUE_GAMER2)) {
+                    Field.printField();
                     System.out.println("Player 2(O) won");
                     break;
                 } else if (isFreePlace()) {
@@ -107,9 +109,20 @@ public class GameLogic {
     private void checkField(int row, int column) {
         Field field = new Field();
         if (field.getPlayingField()[row][column] == '*') {
-            field.moveGamer(row, column);
+            moveGamer(row, column, VALUE_GAMER1, VALUE_GAMER2);
         } else {
             System.out.println("Enter another value");
+        }
+    }
+
+    private static void moveGamer(int row, int column, char value, char value1) {
+        Field field = new Field();
+        if (GameLogic.movesPlayer % 2 != 0) {
+            GameLogic.movesPlayer++;
+            field.getPlayingField()[row][column] = value;
+        } else if (GameLogic.movesPlayer % 2 == 0) {
+            GameLogic.movesPlayer++;
+            field.getPlayingField()[row][column] = value1;
         }
     }
 }
